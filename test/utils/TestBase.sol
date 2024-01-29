@@ -14,6 +14,8 @@ contract TestBase is Test {
 
   bytes4 internal constant PANIC_SELECTOR = bytes4(keccak256("Panic(uint256)"));
 
+  uint64 constant ONE_YEAR = 365.25 days;
+
   function _expectEmit() internal {
     vm.expectEmit(true, true, true, true);
   }
