@@ -21,9 +21,7 @@ contract ReceiptToken is ERC20 {
   /// @param name_ The name of the token.
   /// @param symbol_ The symbol of the token.
   /// @param decimals_ The decimal places of the token.
-  function initialize(address module_, string memory name_, string memory symbol_, uint8 decimals_)
-    external
-  {
+  function initialize(address module_, string memory name_, string memory symbol_, uint8 decimals_) external {
     __initERC20(name_, symbol_, decimals_);
     module = module_;
   }
