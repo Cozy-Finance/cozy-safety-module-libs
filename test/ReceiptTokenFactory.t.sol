@@ -48,7 +48,7 @@ contract ReceiptTokenFactoryTest is TestBase {
     new ReceiptTokenFactory(IReceiptToken(address(0)), IReceiptToken(address(0)));
   }
 
-  function test_deployDepositToken() public {
+  function test_deployReceiptToken() public {
     uint16 poolId_ = _randomUint16();
     uint8 decimals_ = _randomUint8();
 
@@ -72,6 +72,9 @@ contract ReceiptTokenFactoryTest is TestBase {
     assertEq(reserveDepositToken_.name(), "Cozy Reserve Deposit Token");
     assertEq(reserveDepositToken_.symbol(), "cozyDep");
 
+    vm.expectRevert(ReceiptToken.Initialized.selector);
+    reserveDepositToken_.initialize(address(this), "Test Name", "TEST", 6);
+
     address computedRewardDepositTokenAddress_ =
       receiptTokenFactory.computeAddress(mockSafetyModule, poolId_, IReceiptTokenFactory.PoolType.REWARD);
 
@@ -91,6 +94,9 @@ contract ReceiptTokenFactoryTest is TestBase {
     assertEq(rewardDepositToken_.name(), "Cozy Reward Deposit Token");
     assertEq(rewardDepositToken_.symbol(), "cozyDep");
 
+    vm.expectRevert(ReceiptToken.Initialized.selector);
+    rewardDepositToken_.initialize(address(this), "Test Name", "TEST", 6);
+
     address computedStkTokenAddress_ =
       receiptTokenFactory.computeAddress(mockSafetyModule, poolId_, IReceiptTokenFactory.PoolType.STAKE);
 
@@ -105,6 +111,9 @@ contract ReceiptTokenFactoryTest is TestBase {
     assertEq(address(stkToken_.module()), address(mockSafetyModule));
     assertEq(stkToken_.name(), "Cozy Stake Token");
     assertEq(stkToken_.symbol(), "cozyStk");
+
+    vm.expectRevert(ReceiptToken.Initialized.selector);
+    stkToken_.initialize(address(this), "Test Name", "TEST", 6);
   }
 }
 
