@@ -32,6 +32,7 @@ contract ReceiptToken is ERC20 {
     _mint(to_, amount_);
   }
 
+  /// @notice Burns `amount_` of tokens from `from_`.
   function burn(address caller_, address owner_, uint256 amount_) external onlyModule {
     if (caller_ != owner_) {
       uint256 allowed_ = allowance[owner_][caller_]; // Saves gas for limited approvals.
@@ -47,7 +48,7 @@ contract ReceiptToken is ERC20 {
 
   // -------- Modifiers --------
 
-  /// @dev Checks that msg.sender is the set address.
+  /// @dev Checks that msg.sender is the module address.
   modifier onlyModule() {
     if (msg.sender != address(module)) revert Unauthorized();
     _;

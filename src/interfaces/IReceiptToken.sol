@@ -4,6 +4,9 @@ pragma solidity ^0.8.0;
 import {IERC20} from "./IERC20.sol";
 
 interface IReceiptToken is IERC20 {
+  /// @notice Burns `amount_` of tokens from `from`_.
+  function burn(address caller_, address from_, uint256 amount_) external;
+
   /// @notice Replaces the constructor for minimal proxies.
   /// @param module_ The safety/rewards module for this ReceiptToken.
   /// @param name_ The name of the token.
@@ -13,9 +16,6 @@ interface IReceiptToken is IERC20 {
 
   /// @notice Mints `amount_` of tokens to `to_`.
   function mint(address to_, uint256 amount_) external;
-
-  /// @notice Burns `amount_` of tokens from `from`_.
-  function burn(address caller_, address from_, uint256 amount_) external;
 
   /// @notice Address of this token's safety/rewards module.
   function module() external view returns (address);
