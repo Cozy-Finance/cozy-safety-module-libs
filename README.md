@@ -1,6 +1,6 @@
 # Cozy Safety Module Shared
 
-Contracts and libraries shared between Cozy Safety Module related repositories.
+Contracts, interfaces, and libraries shared between Cozy Safety Module related repositories.
 
 ## Development
 
