@@ -28,7 +28,7 @@ abstract contract Governable is Ownable, IGovernable {
 
   /// @notice Update pauser to `_newPauser`.
   /// @param _newPauser The new pauser.
-  function updatePauser(address _newPauser) external {
+  function _updatePauser(address _newPauser) internal {
     if (msg.sender != owner && msg.sender != pauser) revert Unauthorized();
     emit PauserUpdated(_newPauser);
     pauser = _newPauser;

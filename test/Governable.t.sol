@@ -8,6 +8,10 @@ contract GovernableHarness is Governable {
   function initGovernable(address owner_, address pauser_) external {
     __initGovernable(owner_, pauser_);
   }
+
+  function updatePauser(address newPauser_) external {
+    _updatePauser(newPauser_);
+  }
 }
 
 contract GovernableTestSetup is TestBase {
