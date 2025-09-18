@@ -252,13 +252,14 @@ contract SolmatePTokenTest is TestBase {
     assertEq(tokenA.nonces(owner), 1);
   }
 
-  function testFail_TransferInsufficientBalance() public {
+  function test_Revert_TransferInsufficientBalance() public {
     vm.prank(module);
     tokenA.mint(address(this), 0.9e18);
+    vm.expectRevert();
     tokenA.transfer(address(0xBEEF), 1e18);
   }
 
-  function testFail_TransferFromInsufficientAllowance() public {
+  function test_Revert_TransferFromInsufficientAllowance() public {
     address from = address(0xABCD);
 
     vm.prank(module);
@@ -267,10 +268,11 @@ contract SolmatePTokenTest is TestBase {
     vm.prank(from);
     tokenA.approve(address(this), 0.9e18);
 
+    vm.expectRevert();
     tokenA.transferFrom(from, address(0xBEEF), 1e18);
   }
 
-  function testFail_TransferFromInsufficientBalance() public {
+  function test_Revert_TransferFromInsufficientBalance() public {
     address from = address(0xABCD);
 
     vm.prank(module);
@@ -279,10 +281,11 @@ contract SolmatePTokenTest is TestBase {
     vm.prank(from);
     tokenA.approve(address(this), 1e18);
 
+    vm.expectRevert();
     tokenA.transferFrom(from, address(0xBEEF), 1e18);
   }
 
-  function testFail_PermitBadNonce() public {
+  function test_Revert_PermitBadNonce() public {
     uint256 privateKey = 0xBEEF;
     address owner = vm.addr(privateKey);
 
@@ -297,10 +300,11 @@ contract SolmatePTokenTest is TestBase {
       )
     );
 
+    vm.expectRevert();
     tokenA.permit(owner, address(0xCAFE), 1e18, block.timestamp, v, r, s);
   }
 
-  function testFail_PermitBadDeadline() public {
+  function test_Revert_PermitBadDeadline() public {
     uint256 privateKey = 0xBEEF;
     address owner = vm.addr(privateKey);
 
@@ -315,10 +319,11 @@ contract SolmatePTokenTest is TestBase {
       )
     );
 
+    vm.expectRevert();
     tokenA.permit(owner, address(0xCAFE), 1e18, block.timestamp + 1, v, r, s);
   }
 
-  function testFail_PermitPastDeadline() public {
+  function test_Revert_PermitPastDeadline() public {
     uint256 privateKey = 0xBEEF;
     address owner = vm.addr(privateKey);
 
@@ -333,10 +338,11 @@ contract SolmatePTokenTest is TestBase {
       )
     );
 
+    vm.expectRevert();
     tokenA.permit(owner, address(0xCAFE), 1e18, block.timestamp - 1, v, r, s);
   }
 
-  function testFail_PermitReplay() public {
+  function test_Revert_PermitReplay() public {
     uint256 privateKey = 0xBEEF;
     address owner = vm.addr(privateKey);
 
@@ -352,6 +358,7 @@ contract SolmatePTokenTest is TestBase {
     );
 
     tokenA.permit(owner, address(0xCAFE), 1e18, block.timestamp, v, r, s);
+    vm.expectRevert();
     tokenA.permit(owner, address(0xCAFE), 1e18, block.timestamp, v, r, s);
   }
 
@@ -462,45 +469,55 @@ contract SolmatePTokenTest is TestBase {
   //   tokenA.burn(to, burnAmount);
   // }
 
-  function testFail_TransferInsufficientBalance(address to, uint216 mintAmount, uint256 sendAmount) public {
-    sendAmount = bound(sendAmount, mintAmount + 1, type(uint256).max);
+  function test_Revert_TransferInsufficientBalance(address to, uint216 mintAmount, uint256 sendAmount) public {
+    uint256 minSend = uint256(mintAmount) + 1;
+    sendAmount = bound(sendAmount, minSend, type(uint256).max);
 
+    vm.prank(address(tokenA.module()));
     tokenA.mint(address(this), mintAmount);
+    vm.expectRevert();
     tokenA.transfer(to, sendAmount);
   }
 
-  function testFail_TransferFromInsufficientAllowance(address to, uint216 approval, uint216 amount) public {
+  function test_Revert_TransferFromInsufficientAllowance(address to, uint216 approval, uint216 amount) public {
+    approval = uint216(bound(approval, 0, type(uint216).max - 1));
     amount = uint216(bound(amount, approval + 1, type(uint216).max));
 
     address from = address(0xABCD);
 
+    vm.prank(address(tokenA.module()));
     tokenA.mint(from, amount);
 
     vm.prank(from);
     tokenA.approve(address(this), approval);
 
+    vm.expectRevert();
     tokenA.transferFrom(from, to, amount);
   }
 
-  function testFail_TransferFromInsufficientBalance(address to, uint216 mintAmount, uint256 sendAmount) public {
-    sendAmount = bound(sendAmount, mintAmount + 1, type(uint256).max);
+  function test_Revert_TransferFromInsufficientBalance(address to, uint216 mintAmount, uint256 sendAmount) public {
+    uint256 minSend = uint256(mintAmount) + 1;
+    sendAmount = bound(sendAmount, minSend, type(uint256).max);
 
     address from = address(0xABCD);
 
+    vm.prank(address(tokenA.module()));
     tokenA.mint(from, mintAmount);
 
     vm.prank(from);
     tokenA.approve(address(this), sendAmount);
 
+    vm.expectRevert();
     tokenA.transferFrom(from, to, sendAmount);
   }
 
-  function testFail_PermitBadNonce(uint256 privateKey, address to, uint256 amount, uint256 deadline, uint256 nonce)
+  function test_Revert_PermitBadNonce(uint256 privateKey, address to, uint256 amount, uint256 deadline, uint256 nonce)
     public
   {
     if (deadline < block.timestamp) deadline = block.timestamp;
     if (privateKey == 0) privateKey = 1;
     if (nonce == 0) nonce = 1;
+    privateKey = bound(privateKey, 1, SECP256K1_ORDER - 1);
 
     address owner = vm.addr(privateKey);
 
@@ -515,12 +532,14 @@ contract SolmatePTokenTest is TestBase {
       )
     );
 
+    vm.expectRevert();
     tokenA.permit(owner, to, amount, deadline, v, r, s);
   }
 
-  function testFail_PermitBadDeadline(uint256 privateKey, address to, uint256 amount, uint256 deadline) public {
-    if (deadline < block.timestamp) deadline = block.timestamp;
+  function test_Revert_PermitBadDeadline(uint256 privateKey, address to, uint256 amount, uint256 deadline) public {
+    deadline = bound(deadline, block.timestamp, type(uint256).max - 1);
     if (privateKey == 0) privateKey = 1;
+    privateKey = bound(privateKey, 1, SECP256K1_ORDER - 1);
 
     address owner = vm.addr(privateKey);
 
@@ -533,12 +552,14 @@ contract SolmatePTokenTest is TestBase {
       )
     );
 
+    vm.expectRevert();
     tokenA.permit(owner, to, amount, deadline + 1, v, r, s);
   }
 
-  function testFail_PermitPastDeadline(uint256 privateKey, address to, uint256 amount, uint256 deadline) public {
+  function test_Revert_PermitPastDeadline(uint256 privateKey, address to, uint256 amount, uint256 deadline) public {
     deadline = bound(deadline, 0, block.timestamp - 1);
     if (privateKey == 0) privateKey = 1;
+    privateKey = bound(privateKey, 1, SECP256K1_ORDER - 1);
 
     address owner = vm.addr(privateKey);
 
@@ -551,12 +572,14 @@ contract SolmatePTokenTest is TestBase {
       )
     );
 
+    vm.expectRevert();
     tokenA.permit(owner, to, amount, deadline, v, r, s);
   }
 
-  function testFail_PermitReplay(uint256 privateKey, address to, uint256 amount, uint256 deadline) public {
+  function test_Revert_PermitReplay(uint256 privateKey, address to, uint256 amount, uint256 deadline) public {
     if (deadline < block.timestamp) deadline = block.timestamp;
     if (privateKey == 0) privateKey = 1;
+    privateKey = bound(privateKey, 1, SECP256K1_ORDER - 1);
 
     address owner = vm.addr(privateKey);
 
@@ -570,6 +593,7 @@ contract SolmatePTokenTest is TestBase {
     );
 
     tokenA.permit(owner, to, amount, deadline, v, r, s);
+    vm.expectRevert();
     tokenA.permit(owner, to, amount, deadline, v, r, s);
   }
 }
